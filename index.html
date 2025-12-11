@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Birthday Wish Generator</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="aminista.css">
+  <link rel="manifest" href="/site.webmanifest">
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="templates.html">Templates</a>
+    <a href="about.html">About</a>
+    <a href="instructions.html">How to Use</a>
+    <a href="gallery.html">Gallery</a>
+  </nav>
+</head>
+<body>
+
+<div class="sparkle-container">
+  <!-- Sparkle elements here (same as before) -->
+</div>
+
+<div class="wrap">
+  <header>
+    <div class="logo">BW</div>
+    <div class="title-block">
+      <h1>Birthday Wish Generator</h1>
+      <p class="lead">Create heartfelt, funny, sweet, or formal birthday wishes.</p>
+    </div>
+    <img src="https://media2.giphy.com/media/JZunLByO3iFpdzB1NP/source.gif" class="header-gif" alt="Birthday GIF">
+  </header>
+
+  <div class="generator">
+    <h2>Choose your wish type</h2>
+
+    <div class="options">
+      <label><input type="radio" id="heartfelt" name="wish"> Heartfelt</label>
+      <label><input type="radio" id="funny" name="wish"> Funny</label>
+      <label><input type="radio" id="short" name="wish"> Short</label>
+      <label><input type="radio" id="formal" name="wish"> Formal</label>
+      <label><input type="radio" id="romantic" name="wish"> Romantic</label>
+      <label><input type="radio" id="savage" name="wish"> Savage</label>
+    </div>
+
+    <!-- Preview immediately under category -->
+    <div class="result-container">
+      <div class="meta">
+        <div class="small">Preview</div>
+        <div class="badge" id="preview-badge">Ready</div>
+      </div>
+      <div class="result" id="result">Your generated wish will appear here.</div>
+      <div class="side-controls">
+        <button id="shorten" class="ghost">Shorten</button>
+        <button id="lengthen" class="ghost">Lengthen</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="custom">Custom details</label>
+      <textarea id="custom" placeholder="Short memory, inside joke, etc."></textarea>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const result = document.getElementById("result");
+  const custom = document.getElementById("custom");
+  const previewBadge = document.getElementById("preview-badge");
+
+  // Hide unnecessary buttons
+  ["download","copy","another","generate"].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.style.display = "none";
+  });
+
+  // 10 greetings per category (3-4 sentences)
+  const greetings = {
+    heartfelt: [
+      "Happy birthday! May your day be filled with love, laughter, and unforgettable moments. Remember how special you are to everyone around you. Wishing you peace and happiness today and always.",
+      "Wishing you the happiest birthday! I hope each moment of your day is as wonderful as your heart. May your year ahead be full of love and cherished memories. Never forget how truly amazing you are.",
+      "Happy birthday! May your life always be full of joy, success, and meaningful experiences. You deserve every bit of happiness that comes your way. Cheers to another year of love and laughter.",
+      "On your special day, I wish you endless happiness and all the love in the world. May your dreams come true and your heart stay light. Enjoy every single moment to the fullest.",
+      "Happy birthday to someone extraordinary! May your year be packed with laughter, warmth, and amazing surprises. Keep shining brightly and sharing your love with the world.",
+      "Sending you heartfelt birthday wishes! May today remind you how much you are loved. I hope your journey ahead is filled with joy, success, and cherished moments.",
+      "Wishing you a birthday filled with love, laughter, and happiness. May you always find reasons to smile and share joy with others. Cheers to a wonderful year ahead.",
+      "Happy birthday! Your kindness and warmth light up every room. May your life continue to be full of blessings, laughter, and sweet memories.",
+      "Celebrating you today! May your birthday bring countless smiles, beautiful moments, and happiness that lasts all year long.",
+      "Happy birthday! May your heart be as full of joy as the love you give to those around you. Have a wonderful and unforgettable celebration."
+    ],
+    funny: [
+      "Happy birthday! Another year older and wiser? Nah, just older. Keep laughing at yourself and enjoying every ridiculous moment.",
+      "Congratulations on surviving another year! Remember, birthdays are nature's way of telling us to eat more cake and ignore responsibilities.",
+      "Happy birthday! Don't count the candles, just enjoy the fire hazard on your cake. Hope your day is full of giggles and sugar.",
+      "Another year older, but let's not focus on that. Focus on the cake, the fun, and the fact that you still look great!",
+      "Happy birthday! It's the one day you can officially eat dessert first and blame it on celebration. Enjoy it like a pro.",
+      "Cheers to you! Age is just a number… a really high, scary number sometimes. Have a blast anyway!",
+      "Happy birthday! Don't worry about getting older. Remember, the best birthdays are the ones you can laugh about later.",
+      "Another birthday, another reason to act ridiculously and eat cake unapologetically. Have fun today!",
+      "Happy birthday! Life is short, so eat dessert first and forget about counting calories. You're welcome.",
+      "Congratulations! You've officially leveled up in the game of life. May this year be full of fun, pranks, and hilarious moments."
+    ],
+    short: [
+      "Happy Birthday!",
+      "Enjoy your special day!",
+      "Many happy returns!",
+      "Cheers to you!",
+      "Have a fantastic birthday!",
+      "Wishing you joy today!",
+      "Celebrate and smile!",
+      "To a wonderful you!",
+      "Best wishes always!",
+      "Have an amazing day!"
+    ],
+    formal: [
+      "Wishing you a very happy birthday and continued success in all your endeavors. May your life be filled with achievements and prosperity.",
+      "Happy birthday! May your year ahead be marked with personal and professional growth. Wishing you happiness and fulfillment.",
+      "On your special day, I extend my warmest wishes for health, success, and joy. May your endeavors bring you great satisfaction.",
+      "Wishing you a prosperous and joyful birthday. May every day ahead offer opportunities and positive experiences.",
+      "Happy birthday! May you continue to achieve excellence and be surrounded by supportive friends and family.",
+      "Sending best wishes on your birthday. May your accomplishments grow and your happiness multiply.",
+      "Warmest wishes for a birthday filled with meaningful moments and satisfaction in all you do.",
+      "Happy birthday! May your year ahead be rich with success, good fortune, and personal contentment.",
+      "Wishing you a delightful birthday and a year filled with recognition, progress, and joy.",
+      "Happy birthday! May your life continue to be a shining example of success, wisdom, and kindness."
+    ],
+    romantic: [
+      "Happy birthday, my love! Every moment with you is a treasure, and today I celebrate you and all that you mean to me. May our love grow stronger every year.",
+      "To my beloved, happy birthday! You make my heart race, my days brighter, and my world better. I am so grateful for you.",
+      "Happy birthday, sweetheart! Your smile lights up my life, and your love completes me. Here's to another year of joy together.",
+      "Wishing my love a wonderful birthday! May today remind you how deeply you are cherished and adored.",
+      "Happy birthday, darling! Being with you makes every day special, and I hope your birthday is as magical as your presence in my life.",
+      "To my heart's desire, happy birthday! I love you more than words can say, and I can't wait to make more memories together.",
+      "Happy birthday to the one who holds my heart! May our days together continue to be filled with laughter, love, and happiness.",
+      "My love, happy birthday! You are my everything, and today we celebrate the amazing person you are.",
+      "Happy birthday! You are the love of my life, and I am grateful for every moment spent with you.",
+      "To the one who makes my world brighter, happy birthday! I love you endlessly."
+    ],
+    savage: [
+      "Happy birthday! Another year older and still fabulous. Keep slaying like the legend you are.",
+      "Congrats! You survived another year of chaos. Now go conquer the world and show no mercy.",
+      "Happy birthday! Age is irrelevant when you're this fierce. Own it and make the haters jealous.",
+      "Another birthday? Time to remind everyone how unstoppable you are. Go forth and slay!",
+      "Happy birthday! Don’t just count the years, make the years count. Be savage, be unstoppable.",
+      "Cheers! Another year of being unapologetically you. Keep the energy high and the drama low.",
+      "Happy birthday! Age like a boss, live like a legend, and don’t let anyone dull your sparkle.",
+      "Another birthday, another reason to remind the world that you run the game. Stay bold.",
+      "Happy birthday! You’re a force to be reckoned with. Keep turning heads and breaking norms.",
+      "Congrats! Age only makes you sharper, stronger, and even more unstoppable. Keep slaying."
+    ]
+  };
+
+  let currentCategory = "";
+  let currentWish = "";
+  let lengthenCount = 0;
+  let shortenCount = 0;
+
+  function updateResult() {
+    const ps = custom && custom.value.trim() ? "\n\nPS: " + custom.value.trim() : "";
+    result.textContent = (currentWish || "") + ps;
+  }
+
+  document.querySelectorAll("input[name='wish']").forEach(radio => {
+    radio.addEventListener("change", () => {
+      const type = radio.id;
+      currentCategory = type;
+      const categoryList = greetings[type];
+      if(categoryList) {
+        // Pick a random greeting
+        currentWish = categoryList[Math.floor(Math.random()*categoryList.length)];
+        lengthenCount = 0;
+        shortenCount = 0;
+        updateResult();
+        if(previewBadge) previewBadge.innerText = "Generated";
+      }
+    });
+  });
+
+  // Live PS
+  if(custom) custom.addEventListener("input", updateResult);
+
+  // Lengthen button (max 2)
+  const lengthBtn = document.getElementById("lengthen");
+  if(lengthBtn){
+    lengthBtn.addEventListener("click", () => {
+      if(!currentWish) return;
+      const categoryList = greetings[currentCategory];
+      if(lengthenCount >= 2 || !categoryList) return;
+      currentWish += "\n" + categoryList[Math.floor(Math.random()*categoryList.length)];
+      lengthenCount++;
+      updateResult();
+    });
+  }
+
+  // Shorten button (max 2)
+  const shortBtn = document.getElementById("shorten");
+  if(shortBtn){
+    shortBtn.addEventListener("click", () => {
+      if(!currentWish) return;
+      const categoryList = greetings[currentCategory];
+      if(shortenCount >= 2 || !categoryList) return;
+      currentWish = categoryList[Math.floor(Math.random()*categoryList.length)];
+      shortenCount++;
+      updateResult();
+    });
+  }
+
+  // Initial placeholder
+  result.textContent = "Your generated wish will appear here.";
+});
+</script>
+
+<audio id="bgAudio" autoplay loop hidden>
+  <source src="Happy Birthday Soft Instrumental - Happy Birthday background Music.mp3" type="audio/mpeg">
+</audio>
+
+</body>
+</html>
